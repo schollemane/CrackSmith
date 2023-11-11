@@ -33,6 +33,12 @@ function SettingsButton() {
     updateSettings(newSettings)
     localStorage.setItem(settingsStorageKey, JSON.stringify(newSettings));
   }, [settings, updateSettings]);
+  
+  const handleModIdChange = useCallback((value: string) => {
+    const newSettings = { ...settings, modId: value.replaceAll(' ', '')};
+    updateSettings(newSettings)
+    localStorage.setItem(settingsStorageKey, JSON.stringify(newSettings));
+  }, [settings, updateSettings]);
 
   return (
     <div>
@@ -52,6 +58,10 @@ function SettingsButton() {
         usePortal
       >
         <Card>
+          <FormGroup label="Mod ID" labelFor="mod-id">
+            <InputGroup id="mod-id" value={settings.modId} onValueChange={handleModIdChange} />
+          </FormGroup>
+{/*           
           <FormGroup label="OpenAI API Key" labelFor="open-ai-key">
             <InputGroup type="password" id="open-ai-key" value={settings.openAiKey} onValueChange={handleOpenAiKeyChange} />
           </FormGroup>
@@ -63,6 +73,7 @@ function SettingsButton() {
             id="open-ai-model"
             onChange={(e) => handleOpenAiModelChange(e.target.value as OpenAIModel)} />
           </FormGroup>
+*/}
         </Card>
       </Drawer>
     </div>

@@ -17,29 +17,29 @@ function CardBuilder() {
   const [color, setColor] = useState('TechWhite' as CardColor);
   const [stats, setStats] = useState([] as StatChange[])
 
-  const handleSetName = useCallback((value: string) => {
+  const handleSetName = (value: string) => {
     setName(value.replaceAll(' ', ''))
-  }, [name]);
+  };
 
-  const handleStatChange = useCallback((index: number, stat: Stat, value: number) => { 
+  const handleStatChange = (index: number, stat: Stat, value: number) => { 
     const newStats = [...stats];
     newStats[index] = { ...newStats[index], stat, value };
     setStats(newStats);
-  }, [stats]);
+  };
 
-  const addStat = useCallback(() => {
+  const addStat = () => {
     const newStats = [...stats];
     newStats.push({
       stat: 'damage',
       value: 1
     });
     setStats(newStats);
-  }, [stats]); 
+  }; 
 
-  const removeStat = useCallback((index: number) => {
+  const removeStat = (index: number) => {
     const newStats = stats.filter((_, i) => i !== index);
     setStats(newStats);
-  }, [stats])
+  };
 
   function statView(index: number, stat: StatChange) {
     return (
@@ -64,8 +64,15 @@ function CardBuilder() {
     );
   }
 
+  function isValid() {
+    if (name == null || name == '') return false;
+    if (description == null || description == '') return false;
+    if (stats == null || stats.length == 0) return false;
+    return true;
+  }
+
   function getCardScript() {
-    return buildCard('test.mod.id', name, name, description, rarity, color, stats).trim();
+    return buildCard(settings.modId, name, name, description, rarity, color, stats).trim();
   }
 
   function copyCardScript() {
@@ -108,7 +115,7 @@ function CardBuilder() {
         <Button style={{marginTop: '1em'}} large={true} fill={true} intent={Intent.PRIMARY} onClick={addStat} text="Add Stat" />
       </Card>
       <SyntaxHighlighter customStyle={{margin: 0, height: '100%'}} language="csharp" style={ settings.theme == 'dark' ? dark : light}>{getCardScript()}</SyntaxHighlighter>
-      <Button icon={IconNames.CLIPBOARD} intent={Intent.SUCCESS} minimal={false} large style={{position: 'absolute', bottom: 25, right: 25 }} onClick={copyCardScript} />
+      <Button disabled={!isValid()} icon={IconNames.CLIPBOARD} intent={Intent.SUCCESS} minimal={false} large style={{position: 'absolute', bottom: 25, right: 25 }} onClick={copyCardScript} />
     </div>
   );
 }
