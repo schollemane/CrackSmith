@@ -1,6 +1,7 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atelierCaveDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { Card, Button, ButtonGroup, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent } from "@blueprintjs/core";
+import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { useCallback, useState } from "react";
 import '../Flow.css'
@@ -60,6 +61,21 @@ function CardBuilder() {
     );
   }
 
+  function getCardScript() {
+    return buildCard('test.mod.id', name, name, description, rarity, color, stats).trim();
+  }
+
+  function copyCardScript() {
+    navigator.clipboard.writeText(getCardScript());
+    const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+    toast.show({
+      message: 'Copied script!',
+      intent: Intent.SUCCESS,
+      icon: IconNames.CLIPBOARD,
+      timeout: 3000
+    });
+  }
+
   return (
     <div className="fill-view" style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '35em 2fr', gridTemplateRows: '1fr'}}>
       <Card style={{paddingTop: '5em', overflow: 'auto'}}>
@@ -88,7 +104,8 @@ function CardBuilder() {
         { stats.map((s, i) => statView(i, s)) }
         <Button fill={true} onClick={addStat} text="Add Stat" />
       </Card>
-      <SyntaxHighlighter customStyle={{margin: 0, height: '100%'}} language="csharp" style={atelierCaveDark}>{buildCard('test.mod.id', name, name, description, rarity, color, stats).trim()}</SyntaxHighlighter>
+      <SyntaxHighlighter customStyle={{margin: 0, height: '100%'}} language="csharp" style={atelierCaveDark}>{getCardScript()}</SyntaxHighlighter>
+      <Button icon={IconNames.CLIPBOARD} large style={{position: 'absolute', bottom: 25, right: 25 }} onClick={copyCardScript} />
     </div>
   );
 }
