@@ -61,8 +61,8 @@ function CardBuilder() {
   }
 
   return (
-    <div className="fill-view" style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '1fr 2fr', gridTemplateRows: '1fr'}}>
-      <Card style={{paddingTop: '5em'}}>
+    <div className="fill-view" style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '35em 2fr', gridTemplateRows: '1fr'}}>
+      <Card style={{paddingTop: '5em', overflow: 'auto'}}>
         <H1><EditableText placeholder="Card Name" onChange={handleSetName} value={name} /></H1>
         <FormGroup label="Description" labelFor="card-description">
           <TextArea id='card-description' fill placeholder='Card Description' onChange={(e) => setDescription(e.target.value)} value={description} />
