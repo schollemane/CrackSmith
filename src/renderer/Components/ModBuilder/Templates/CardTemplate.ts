@@ -28,11 +28,6 @@ public class ${className} : SimpleCard
 
   public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
   {
-${ statChanges.map(sc => `    ApplyStats("${sc.stat}", ${sc.value}f, gun, cardStats, statModifiers, block);`).join('\n') }
-  }
-
-  private void ApplyStats(string stat, float value, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
-  {
     Dictionary<string, Action<float>> actions = new Dictionary<string, Action<float>>
     {
       { "damage", (val) => { gun.damage = val;  } },
@@ -46,11 +41,7 @@ ${ statChanges.map(sc => `    ApplyStats("${sc.stat}", ${sc.value}f, gun, cardSt
       { "bounces", (val) => { gun.reflects = (int)val; } },
       { "bulletSpeed", (val) => { gun.projectileSpeed = val; } }
     };
-
-    if (actions.TryGetValue(stat, out var action))
-    {
-      action?.Invoke(value);
-    }
+${ statChanges.map(sc => `    actions["${sc.stat}"].invoke(${sc.value});`).join('\n') }
   }
 }
 `;
