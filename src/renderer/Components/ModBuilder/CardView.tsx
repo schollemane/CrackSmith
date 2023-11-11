@@ -1,13 +1,16 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atelierCaveDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { useCallback, useState } from "react";
 import '../Flow.css'
 import buildCard, { CardColor, CardRarity, Stat, StatChange } from './Templates/CardTemplate';
+import { useSettings } from '../../SettingsProvider';
 
 function CardBuilder() {
+  const { settings, updateSettings } = useSettings();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [rarity, setRarity] = useState('Common' as CardRarity);
@@ -102,10 +105,10 @@ function CardBuilder() {
             onChange={(e) => setColor(e.target.value as CardColor)} />
         </FormGroup>
         { stats.map((s, i) => statView(i, s)) }
-        <Button fill={true} onClick={addStat} text="Add Stat" />
+        <Button style={{marginTop: '1em'}} large={true} fill={true} intent={Intent.PRIMARY} onClick={addStat} text="Add Stat" />
       </Card>
-      <SyntaxHighlighter customStyle={{margin: 0, height: '100%'}} language="csharp" style={atelierCaveDark}>{getCardScript()}</SyntaxHighlighter>
-      <Button icon={IconNames.CLIPBOARD} large style={{position: 'absolute', bottom: 25, right: 25 }} onClick={copyCardScript} />
+      <SyntaxHighlighter customStyle={{margin: 0, height: '100%'}} language="csharp" style={ settings.theme == 'dark' ? dark : light}>{getCardScript()}</SyntaxHighlighter>
+      <Button icon={IconNames.CLIPBOARD} intent={Intent.SUCCESS} minimal={false} large style={{position: 'absolute', bottom: 25, right: 25 }} onClick={copyCardScript} />
     </div>
   );
 }
