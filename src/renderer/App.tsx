@@ -1,21 +1,29 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { MemoryRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import './App.css';
 import Header from './Components/Header';
 import { SettingsProvider } from './SettingsProvider';
-import { ReactFlowProvider } from 'reactflow';
-import CardBuilder from './Components/ModBuilder/CardView';
+import CardBuilder from './Components/ModBuilder/CardBuilder';
+import { ModContextProvider } from './ModContextProvider';
+import CardList from './Components/ModBuilder/CardList';
 
 export default function App() {
+  let { index } = useParams();
+
   return (
-    <ReactFlowProvider>
-      <SettingsProvider>
+    <SettingsProvider>
+      <ModContextProvider>
         <Router>
-          <Routes>
-            <Route path="/" element={<CardBuilder />} />
-          </Routes>
-          <Header />
+          <div style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '1fr', gridTemplateRows: '3em 1fr'}}>
+            <Header />
+            <Routes>
+              <Route path="/" element={<CardList />} />
+              <Route path="card">
+                <Route path=":index" element={<CardBuilder />} />
+              </Route>
+            </Routes>
+          </div>
         </Router>
-      </SettingsProvider>
-    </ReactFlowProvider>
+      </ModContextProvider>
+    </SettingsProvider>
   );
 }

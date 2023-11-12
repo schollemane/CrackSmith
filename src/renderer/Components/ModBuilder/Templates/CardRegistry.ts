@@ -47,8 +47,7 @@ public static class CardRegistry
 
     return null;
   }
-}
-`;
+}`.trim();
 }
 
 export default getCardRegistry;

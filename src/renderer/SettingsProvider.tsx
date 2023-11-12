@@ -7,17 +7,16 @@ type OpenAIModel = 'gpt-4' | 'gpt-3.5-turbo' | 'gpt-3.5-turbo-16k' | 'gpt-4-1106
 interface SettingsProps {
   openAiKey: string,
   openAiModel: OpenAIModel
-  modId: string
   theme: string
 }
 
 const SettingsContext = createContext<{ settings: SettingsProps; updateSettings: (newPreferences: SettingsProps) => void }>(
-  { settings: { openAiKey: '', modId: 'com.example.rounds.mod', openAiModel: 'gpt-4', theme: 'light' }, updateSettings: () => {} }
+  { settings: { openAiKey: '', openAiModel: 'gpt-4', theme: 'light' }, updateSettings: () => {} }
 );
 
 // 2. Create a Provider component to manage the state
 function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState<SettingsProps>({ openAiKey: '', modId: 'com.example.rounds.mod', openAiModel: 'gpt-4', theme: 'light' });
+  const [settings, setSettings] = useState<SettingsProps>({ openAiKey: '', openAiModel: 'gpt-4', theme: 'light' });
 
   const updateSettings = (newPreferences: SettingsProps) => {
     setSettings(newPreferences);

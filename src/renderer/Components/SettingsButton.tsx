@@ -3,18 +3,19 @@ import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { useCallback, useEffect, useState } from "react";
 import { OpenAIModel, useSettings } from "../SettingsProvider";
+import { useModContext } from "../ModContextProvider";
 
 const settingsStorageKey = 'preferences';
 
 function SettingsButton() {
   const { settings, updateSettings } = useSettings();
+  const { modContext, updateModContext } = useModContext();
   const [active, setActive] = useState(false);
 
   useEffect(() => {
     const key = JSON.parse(localStorage.getItem(settingsStorageKey));
     if (key) {
       updateSettings({ ...settings, ...key});
-      console.log(key);
     } else {
       if (settings.openAiKey == null || settings.openAiKey === '') {
         setActive(true);
@@ -35,10 +36,9 @@ function SettingsButton() {
   }, [settings, updateSettings]);
   
   const handleModIdChange = useCallback((value: string) => {
-    const newSettings = { ...settings, modId: value.replaceAll(' ', '')};
-    updateSettings(newSettings)
-    localStorage.setItem(settingsStorageKey, JSON.stringify(newSettings));
-  }, [settings, updateSettings]);
+    const newSettings = { ...modContext, modId: value.replaceAll(' ', '')};
+    updateModContext(newSettings)
+  }, [modContext, updateModContext]);
 
   return (
     <div>
@@ -59,7 +59,7 @@ function SettingsButton() {
       >
         <Card>
           <FormGroup label="Mod ID" labelFor="mod-id">
-            <InputGroup id="mod-id" value={settings.modId} onValueChange={handleModIdChange} />
+            <InputGroup id="mod-id" value={modContext.modId} onValueChange={handleModIdChange} />
           </FormGroup>
 {/*           
           <FormGroup label="OpenAI API Key" labelFor="open-ai-key">

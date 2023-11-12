@@ -1,13 +1,37 @@
 type CardRarity = 'Common' | 'Uncommon' | 'Rare';
 type CardColor = 'DestructiveRed' | 'FirepowerYellow' | 'DefensiveBlue' | 'TechWhite' | 'EvilPurple' | 'PoisonGreen' | 'NatureBrown' | 'ColdBlue' | 'MagicPink';
 type Stat = 'damage' | 'health' | 'reload' | 'ammo' | 'projectiles' | 'bursts' | 'timeBetweenBullets' | 'attackSpeed' | 'bounces' | 'bulletSpeed';
+type SimpleAmount = 'notAssigned' | 'aLittleBitOf' | 'Some' | 'aLotOf' | 'aHugeAmountOf' | 'slightlyLower' | 'lower' | 'aLotLower' | 'slightlySmaller' | 'smaller';
+
+const statDisplayTexts = {
+  'damage': 'Damage',
+  'health': 'Health',
+  'reload': 'Reload',
+  'ammo': 'Ammunition',
+  'projectiles': 'Projectiles',
+  'bursts': 'Bursts',
+  'timeBetweenBullets': 'Time Between Bullets',
+  'attackSpeed': 'Attack Speed',
+  'bounces': 'Bounces',
+  'bulletSpeed': 'Bullet Speed'
+}
 
 interface StatChange {
   value: number;
   stat: Stat;
+  positive: boolean;
+  simpleAmount: SimpleAmount;
 }
 
-function buildCard(modId: string, className: string, title: string, description: string, rarity: CardRarity, color: CardColor, statChanges: StatChange[]) {
+interface CardProps {
+  cardName: string
+  cardDescription: string
+  cardRarity: CardRarity
+  cardColor: CardColor
+  cardStats: StatChange[]
+}
+
+function buildCard(modName: string, className: string, title: string, description: string, rarity: CardRarity, color: CardColor, statChanges: StatChange[]) {
   return `
 using System;
 using System.Collections;
@@ -21,9 +45,13 @@ public class ${className} : SimpleCard
     {
         Title       = "${title}",
         Description = "${description}",
-        ModName     = "${modId}",
+        ModName     = "${modName}",
         Rarity      = CardInfo.Rarity.${rarity},
-        Theme       = CardThemeColor.CardThemeColorType.${color}
+        Theme       = CardThemeColor.CardThemeColorType.${color},
+        Stats = new CardInfoStat[]
+        {
+${statChanges.map(statToInfo).join(',\n')}
+        }
     };
 
     public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
@@ -43,9 +71,20 @@ public class ${className} : SimpleCard
         };
 ${ statChanges.map(sc => `        actions["${sc.stat}"].Invoke(${sc.value}f);`).join('\n') }
     }
+}`.trim();
 }
-`;
+
+function statToInfo(stat: StatChange) {
+  const amountPercent = Math.floor((stat.value - 1) * 100);
+  const amountString = `${amountPercent < 0 ? '' : '+'}${amountPercent}%`
+  return `          new CardInfoStat()
+          {
+            positive = ${stat.positive},
+            stat = "${statDisplayTexts[stat.stat]}",
+            amount = "${amountString}",
+            simepleAmount = CardInfoStat.SimpleAmount.${stat.simpleAmount},
+          }`;
 }
 
 export default buildCard;
-export type { CardRarity, CardColor, StatChange, Stat };
+export type { CardRarity, CardColor, SimpleAmount, StatChange, Stat, CardProps };

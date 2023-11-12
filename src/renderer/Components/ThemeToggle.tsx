@@ -15,7 +15,7 @@ function ThemeToggle() {
   }, [settings]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '-10px' }}>
+    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', marginBottom: '-10px' }}>
       <Switch large={true} checked={settings.theme == 'dark'} innerLabel="Light" innerLabelChecked="Dark" onChange={handleThemeChange} />
     </div>
   );

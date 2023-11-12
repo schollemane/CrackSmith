@@ -22,22 +22,22 @@ using ModsPlus;
 [BepInProcess("Rounds.exe")]
 public class ${name}Plugin : BaseUnityPlugin
 {
-  private const string ModId = "${id}";
-  private const string ModName = "${name}";
-  private const string ModVersion = "${version}";
-  private const string CompatabilityModName = "${name}";
+    private const string ModId = "${id}";
+    private const string ModName = "${name}";
+    private const string ModVersion = "${version}";
+    private const string CompatabilityModName = "${name}";
 
-  void Awake()
-  {
-${ cardClasses.map(c => `\t\tCardRegistry.RegisterCard<${c}>();`).join('\n') }
-  }
+    void Awake()
+    {
+${ cardClasses.map(c => `        CardRegistry.RegisterCard<${c}>();`).join('\n') }
+    }
 
-  void Start()
-  {
-    var harmony = new Harmony(ModId);
-    harmony.PatchAll();
-  }
-}`;
+    void Start()
+    {
+        var harmony = new Harmony(ModId);
+        harmony.PatchAll();
+    }
+}`.trim();
 }
 
 export default buildMod;

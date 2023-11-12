@@ -23,7 +23,27 @@ const electronHandler = {
     },
   },
 };
-
 contextBridge.exposeInMainWorld('electron', electronHandler);
-
 export type ElectronHandler = typeof electronHandler;
+
+interface Script {
+  name: string
+  content: string
+}
+
+interface ModBundle {
+  modName: string
+  csproj: string
+  exportFolder: string,
+  scripts: Script[]
+}
+
+const modApi = {
+  selectFolder: (dialogTitle: string) => ipcRenderer.invoke('modApi:selectFolder', dialogTitle),
+  getAssemblies: (libFolderPath: string) => ipcRenderer.invoke('modApi:getAssemblies', libFolderPath),
+  exportMod: (bundle: ModBundle) => ipcRenderer.invoke('modApi:exportMod', bundle)
+}
+contextBridge.exposeInMainWorld('modApi', modApi);
+export type ModdingApi = typeof modApi;
+
+export type { ModBundle };

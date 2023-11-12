@@ -1,0 +1,11 @@
+.max-width-m {
+  max-width: 600px;
+}
+
+.max-width-s {
+  max-width: 400px;
+}
+
+.min-width-s {
+  min-width: 400px;
+}
