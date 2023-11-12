@@ -45,6 +45,8 @@ function initCustomBehavior(window: BrowserWindow) {
     // Destructure the data from the bundle
     const { modName, csproj, exportFolder, scripts } = bundle;
   
+    let result;
+
     try {
       // Create the export directory if it doesn't exist
       await fs.mkdir(exportFolder, { recursive: true });
@@ -80,25 +82,30 @@ function initCustomBehavior(window: BrowserWindow) {
         });
       });
 
+      // Move binary from bin to export folder
       const binaryPath = path.join(exportFolder, 'bin', 'Release', 'netstandard2.1', `${modName}.dll`);
       const binaryDest = path.join(exportFolder, `${modName}.dll`);
       await fs.rename(binaryPath, binaryDest);
-      await fs.rm(path.join(exportFolder, 'bin'), { recursive: true, force: true });
-      await fs.rm(path.join(exportFolder, 'obj'), { recursive: true, force: true });
-      await fs.rm(path.join(exportFolder, 'src'), { recursive: true, force: true });
-      await fs.rm(path.join(exportFolder, `${modName}.csproj`));
 
-      return {
+      result = {
         status: 'success',
         binary: binaryDest
       }
     } catch (error) {
       console.error('Error creating mod:', error);
-      return {
+      result = {
         status: 'error',
         message: error
       }
     }
+
+    // Cleanup files from build process
+    await fs.rm(path.join(exportFolder, 'bin'), { recursive: true, force: true });
+    await fs.rm(path.join(exportFolder, 'obj'), { recursive: true, force: true });
+    await fs.rm(path.join(exportFolder, 'src'), { recursive: true, force: true });
+    await fs.rm(path.join(exportFolder, `${modName}.csproj`));
+
+    return result;
   });
 }
 

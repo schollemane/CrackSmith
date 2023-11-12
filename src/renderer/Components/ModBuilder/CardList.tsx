@@ -1,4 +1,4 @@
-import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, InputGroup } from "@blueprintjs/core";
+import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, InputGroup, ProgressBar } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import buildCard, { CardProps, StatChange } from "./Templates/CardTemplate";
@@ -14,6 +14,8 @@ import buildCsproj from "./Templates/CsprojTemplate";
 function CardList() {
   const navigate = useNavigate();
   const { modContext, updateModContext } = useModContext();
+
+  const [ exporting, setExporting ] = useState(false);
   
   async function selectLibFolder() {
     const newModContext = {...modContext};
@@ -53,6 +55,8 @@ function CardList() {
   }
 
   async function exportMod() {
+    setExporting(true);
+
     const files = await window.modApi.getAssemblies(modContext.libFolder) as string[];
     const csproj = buildCsproj(files);
     const cardScripts = modContext.cards.map(c => {
@@ -80,10 +84,25 @@ function CardList() {
 
     if (result.status == 'success') {
       await window.modApi.showFile(result.binary);
+      const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+      toast.show({
+        message: `Building '${modContext.modName.replaceAll(' ', '')}.dll' completed successfully.`,
+        intent: Intent.SUCCESS,
+        icon: IconNames.SAVED,
+        timeout: 3000
+      });
     } else {
-
+      console.error(result.message);
+      const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+      toast.show({
+        message: `Export failed!\n${result.message}`,
+        intent: Intent.DANGER,
+        icon: IconNames.CROSS_CIRCLE,
+        timeout: 5000
+      });
     }
-    console.log({ csproj, scripts });
+    
+    setExporting(false);
   }
 
   function addCard() {
@@ -170,7 +189,8 @@ function CardList() {
         </Card>
         <Button large fill text='New Card' icon={IconNames.ADD} intent={Intent.PRIMARY} onClick={addCard} />
         <br />
-        <Button large fill disabled={!canExport()} text='Export Mod' icon={IconNames.EXPORT} intent={Intent.SUCCESS} onClick={exportMod} />
+        <Button large fill disabled={!canExport() || exporting} text='Export Mod' icon={IconNames.EXPORT} intent={Intent.SUCCESS} onClick={exportMod} />
+        { exporting ? <ProgressBar animate={true} intent={Intent.WARNING} stripes={true} /> : null }
       </Card>
     </div>
   );
