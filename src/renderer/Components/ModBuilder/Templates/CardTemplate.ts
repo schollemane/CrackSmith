@@ -1,4 +1,4 @@
-type CardRarity = 'Common' | 'Uncommon' | 'Rare';
+type CardRarity = 'Trinket' | 'Common' | 'Scarce' | 'Uncommon' | 'Exotic' | 'Rare' | 'Epic' | 'Legendary' | 'Mythical' | 'Divine';
 type CardColor = 'DestructiveRed' | 'FirepowerYellow' | 'DefensiveBlue' | 'TechWhite' | 'EvilPurple' | 'PoisonGreen' | 'NatureBrown' | 'ColdBlue' | 'MagicPink';
 type Stat = 'damage' | 'health' | 'reload' | 'ammo' | 'projectiles' | 'bursts' | 'timeBetweenBullets' | 'attackSpeed' | 'bounces' | 'bulletSpeed';
 type SimpleAmount = 'notAssigned' | 'aLittleBitOf' | 'Some' | 'aLotOf' | 'aHugeAmountOf' | 'slightlyLower' | 'lower' | 'aLotLower' | 'slightlySmaller' | 'smaller';
@@ -11,6 +11,31 @@ interface StatInfo {
   min: number
   max: number
   requires: Stat[]
+}
+
+const rarityColorValues: { [key: string]: string } = {
+  'Trinket': '#aa9080',
+  'Common': '#000b20',
+  'Scarce': '#009035',
+  'Uncommon': '#009cc5',
+  'Exotic': '#0000dd',
+  'Rare': '#f000a3',
+  'Epic': '#c60011',
+  'Legendary': '#f7eb00',
+  'Mythical': '#00c900',
+  'Divine': '#dbc47e'
+}
+
+const cardColorValues = {
+  'DestructiveRed': 'rgb(80.19% 27.61% 27.61%)',
+  'FirepowerYellow': 'rgb(79.25% 73.38% 22.8%)',
+  'DefensiveBlue': 'rgb(31.37% 51.55% 81.96%)',
+  'TechWhite': 'white',
+  'EvilPurple': 'rgb(47.77% 31.37% 81.96%)',
+  'PoisonGreen': 'rgb(0% 57.55% 29.95%)',
+  'NatureBrown': 'rgb(57.12% 80.19% 12.48%)',
+  'ColdBlue': 'rgb(31.37% 73.69% 81.96%)',
+  'MagicPink': 'rgb(81.96% 31.37% 53.44%)'
 }
 
 const statInfoConstraints: { [key: string]: StatInfo } = {
@@ -128,6 +153,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ModsPlus;
+using RarityLib.Utils;
 
 public class ${className} : SimpleCard
 {
@@ -136,7 +162,7 @@ public class ${className} : SimpleCard
         Title       = "${title}",
         Description = "${description}",
         ModName     = "${modName}",
-        Rarity      = CardInfo.Rarity.${rarity},
+        Rarity      = RarityUtils.GetRarity("${rarity}"),
         Theme       = CardThemeColor.CardThemeColorType.${color},
         Stats = new CardInfoStat[]
         {
@@ -193,6 +219,14 @@ function getStatInfo(stat: Stat) {
   return statInfoConstraints[stat];
 }
 
+function getRarityColor(rarity: CardRarity) {
+  return rarityColorValues[rarity];
+}
+
+function getCardColor(cardColor: CardColor) {
+  return cardColorValues[cardColor];
+}
+
 export default buildCard;
-export { getStatInfo }
+export { getStatInfo, getRarityColor, getCardColor }
 export type { CardRarity, CardColor, SimpleAmount, StatChange, Stat, CardProps };

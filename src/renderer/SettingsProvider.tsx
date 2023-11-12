@@ -13,7 +13,7 @@ interface SettingsProps {
 const settingsStorageKey = 'preferences';
 
 const SettingsContext = createContext<{ settings: SettingsProps; updateSettings: (newPreferences: SettingsProps) => void }>(
-  { settings: { openAiKey: '', openAiModel: 'gpt-4', theme: 'light' }, updateSettings: () => {} }
+  { settings: { openAiKey: '', openAiModel: 'gpt-4', theme: 'dark' }, updateSettings: () => {} }
 );
 
 // 2. Create a Provider component to manage the state
@@ -22,7 +22,7 @@ function SettingsProvider({ children }) {
   const [settings, setSettings] = useState<SettingsProps>(() => {
     // Load context from local storage when the component is initialized
     const savedContext = localStorage.getItem(settingsStorageKey);
-    return savedContext ? JSON.parse(savedContext) : { openAiKey: '', openAiModel: 'gpt-4', theme: 'light' };
+    return savedContext ? JSON.parse(savedContext) : { openAiKey: '', openAiModel: 'gpt-4', theme: 'dark' };
   });
 
   const updateSettings = (newPreferences: SettingsProps) => {

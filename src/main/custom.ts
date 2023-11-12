@@ -5,6 +5,10 @@ import { ModBundle } from './preload';
 import { exec } from 'child_process';
 
 function initCustomBehavior(window: BrowserWindow) {
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+});
   ipcMain.handle('application:minimize', async () => {
     window.minimize();
   });

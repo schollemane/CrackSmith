@@ -30,21 +30,26 @@ const bepInEx: RequiredAssembly = {
 
 const unbound: RequiredAssembly = {
   assemblies: [ 'UnboundLib.dll' ],
-  missingMessage: (<>This can be found in "Unbound" by willis81808 on <b>Thunderstore</b>.</>)
+  missingMessage: (<>This can be found in "Unbound" by willis81808 on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/willis81808/UnboundLib/">Thunderstore</a>.</>)
 }
 
 const modsPlus: RequiredAssembly = {
   assemblies: [ 'ModsPlus.dll' ],
-  missingMessage: (<>This can be found in "ModsPlus" by willis81808 on <b>Thunderstore</b>.</>)
+  missingMessage: (<>This can be found in "ModsPlus" by willis81808 on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/willis81808/ModsPlus/">Thunderstore</a>.</>)
 };
 
 const moddingUtils: RequiredAssembly = {
   assemblies: [ 'ModdingUtils.dll' ],
-  missingMessage: (<>This can be found in "ModdingUtils" by Pykess on <b>Thunderstore</b>.</>)
+  missingMessage: (<>This can be found in "ModdingUtils" by Pykess on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/Pykess/ModdingUtils/">Thunderstore</a>.</>)
+};
+
+const rarityLib: RequiredAssembly = {
+  assemblies: [ 'RarityLib.dll' ],
+  missingMessage: (<>This can be found in "RarityLib" by Root on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/Root/RarityLib/">Thunderstore</a>.</>)
 };
 
 function getRequiredAssmeblies() {
-  return [ rounds, bepInEx, unbound, modsPlus, moddingUtils ]
+  return [ rounds, bepInEx, unbound, modsPlus, moddingUtils, rarityLib ]
 }
 
 export default getRequiredAssmeblies;

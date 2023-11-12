@@ -3,7 +3,8 @@ import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, Nu
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { IconNames } from "@blueprintjs/icons";
 import { useCallback, useState } from "react";
-import '../Flow.css'
+import '../Flow.css';
+import '../../Shared.css';
 import buildCard, { CardColor, CardRarity, Stat, StatChange, CardProps, SimpleAmount, getStatInfo } from './Templates/CardTemplate';
 import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useSettings } from '../../SettingsProvider';
@@ -25,7 +26,9 @@ function CardBuilder() {
   const [stats, setStats] = useState(modContext.cards[cardIndex].cardStats || [] as StatChange[])
 
   const handleSetName = (value: string) => {
-    setName(value)
+    if (/^[A-Za-z ]*$/.test(value)) {
+      setName(value)
+    }
   };
 
   const handleSetDescription = (value: string) => {
@@ -129,7 +132,7 @@ function CardBuilder() {
 
   function copyCardScript() {
     navigator.clipboard.writeText(getCardScript());
-    const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+    const toast = OverlayToaster.create({ position: 'bottom', usePortal: true });
     toast.show({
       message: 'Copied script!',
       intent: Intent.SUCCESS,
@@ -189,7 +192,7 @@ function CardBuilder() {
         <FormGroup label="Rarity" labelFor="card-rarity">
           <HTMLSelect
             fill={true}
-            options={['Common', 'Uncommon', 'Rare']}
+            options={['Trinket', 'Common', 'Scarce', 'Uncommon', 'Exotic', 'Rare', 'Epic', 'Legendary', 'Mythical', 'Divine']}
             value={rarity}
             id="card-rarity"
             onChange={(e) => handleSetRarity(e.target.value as CardRarity)} />

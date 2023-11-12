@@ -1,7 +1,7 @@
 import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, InputGroup, ProgressBar, Dialog, DialogBody, DialogFooter } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
-import buildCard, { CardProps, StatChange } from "./Templates/CardTemplate";
+import buildCard, { CardProps, StatChange, getCardColor, getRarityColor, getStatInfo } from "./Templates/CardTemplate";
 import { useState } from "react";
 import '../Flow.css'
 import '../../Shared.css'
@@ -94,7 +94,7 @@ function CardList() {
 
   function handleCopyLogs() {
     navigator.clipboard.writeText(buildOutput);
-    const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+    const toast = OverlayToaster.create({ position: 'bottom', usePortal: true });
     toast.show({
       message: 'Copied full logs.',
       intent: Intent.SUCCESS,
@@ -135,7 +135,7 @@ function CardList() {
 
     if (result.status == 'success') {
       await window.modApi.showFile(result.binary);
-      const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+      const toast = OverlayToaster.create({ position: 'bottom', usePortal: true });
       toast.show({
         message: `Building '${modContext.modName.replaceAll(' ', '')}.dll' completed successfully.`,
         intent: Intent.SUCCESS,
@@ -179,10 +179,19 @@ function CardList() {
     updateModContext(newModContext);
   }
 
-  function cardStatView(stats: StatChange, index: number) {
+  function cardStatView(stat: StatChange, index: number) {
+    const statInfo = getStatInfo(stat.stat);
+    var amountString: string;
+    if (statInfo.additive) {
+      amountString = `${stat.value < 0 ? stat.value : `+${stat.value}`}${statInfo.unit}`
+    } else {
+      const amountPercent = Math.floor((stat.value - 1) * 100);
+      amountString = `${amountPercent < 0 ? '' : '+'}${amountPercent}%`
+    }
+
     return (
       <li key={`${index}`}>
-        <p>{stats.stat}: {stats.value}</p>
+        <p>{statInfo.displayName} {amountString}</p>
       </li>
     );
   }
@@ -200,20 +209,22 @@ function CardList() {
   }
 
   function cardView(card: CardProps, index: number) {
+    const style = { "--corner-color": getRarityColor(card.cardRarity), borderWidth: '1px', margin: '0', borderStyle: 'solid', borderColor: getCardColor(card.cardColor), display: 'flex', flexDirection: 'column'} as React.CSSProperties;
     return (
-      <Card className="max-width-s min-width-s" style={{display: 'flex', flexDirection: 'column', margin: '1em'}}>
-        <H2>{card.cardName}</H2>
-        <p>{card.cardDescription}</p>
-        <p>{card.cardRarity}</p>
-        <p>{card.cardColor}</p>
-        <ul>
-          { card.cardStats.map(cardStatView) }
-        </ul>
-        <ButtonGroup fill style={{marginTop: 'auto'}}>
-          <Button text='Edit' intent={Intent.PRIMARY} icon={IconNames.EDIT} onClick={() => navigate(`/card/${index}`)} />
-          <Button text='Delete' intent={Intent.DANGER} icon={IconNames.DELETE} onClick={() => deleteCard(index)} />
-        </ButtonGroup>
-      </Card>
+      <div style={{position: 'relative', overflow: 'hidden', margin: '1em'}}>
+        <Card className="colored-corners max-width-s min-width-s" style={style}>
+          <H2>{card.cardName}</H2>
+          <p>{card.cardDescription}</p>
+          <p>Stats:</p>
+          <ul style={{marginTop: 0}}>
+            { card.cardStats.map(cardStatView) }
+          </ul>
+          <ButtonGroup fill style={{marginTop: 'auto'}}>
+            <Button text='Edit' intent={Intent.PRIMARY} icon={IconNames.EDIT} onClick={() => navigate(`/card/${index}`)} />
+            <Button text='Delete' intent={Intent.DANGER} icon={IconNames.DELETE} onClick={() => deleteCard(index)} />
+          </ButtonGroup>
+        </Card>
+      </div>
     );
   }
 
