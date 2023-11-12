@@ -1,4 +1,4 @@
-import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, InputGroup, ProgressBar } from "@blueprintjs/core";
+import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, InputGroup, ProgressBar, Dialog, DialogBody, DialogFooter } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import buildCard, { CardProps, StatChange } from "./Templates/CardTemplate";
@@ -10,12 +10,18 @@ import { NavLink, useNavigate } from "react-router-dom";
 import buildMod from "./Templates/ModTemplate";
 import getCardRegistry from "./Templates/CardRegistry";
 import buildCsproj from "./Templates/CsprojTemplate";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { useSettings } from '../../SettingsProvider';
 
 function CardList() {
   const navigate = useNavigate();
   const { modContext, updateModContext } = useModContext();
+  const { settings, updateSettings } = useSettings();
 
   const [ exporting, setExporting ] = useState(false);
+  const [ buildOutput, setBuildOutput ] = useState('');
+  const [ showingLogs, setShowingLogs ] = useState(false);
   
   async function selectLibFolder() {
     const newModContext = {...modContext};
@@ -54,6 +60,25 @@ function CardList() {
     return true;
   }
 
+  function handleShowLogs() {
+    setShowingLogs(true);
+  }
+
+  function handleHideLogs() {
+    setShowingLogs(false);
+  }
+
+  function handleCopyLogs() {
+    navigator.clipboard.writeText(buildOutput);
+    const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+    toast.show({
+      message: 'Copied full logs.',
+      intent: Intent.SUCCESS,
+      icon: IconNames.CLIPBOARD,
+      timeout: 3000
+    });
+  }
+
   async function exportMod() {
     setExporting(true);
 
@@ -82,6 +107,8 @@ function CardList() {
       scripts
     });
 
+    setBuildOutput(result.output);
+
     if (result.status == 'success') {
       await window.modApi.showFile(result.binary);
       const toast = OverlayToaster.create({ position: 'top', usePortal: true });
@@ -92,10 +119,13 @@ function CardList() {
         timeout: 3000
       });
     } else {
-      console.error(result.message);
-      const toast = OverlayToaster.create({ position: 'top', usePortal: true });
+      const toast = OverlayToaster.create({ position: 'bottom', usePortal: true });
       toast.show({
-        message: `Export failed!\n${result.message}`,
+        message: (<div className="no-drag">
+            <p>Export failed!</p>
+            <p>{result.message + ''}</p>
+            <Button fill={true} className="no-drag" text="View Full Logs" onClick={(handleShowLogs)}/>
+          </div>),
         intent: Intent.DANGER,
         icon: IconNames.CROSS_CIRCLE,
         timeout: 5000
@@ -192,6 +222,17 @@ function CardList() {
         <Button large fill disabled={!canExport() || exporting} text='Export Mod' icon={IconNames.EXPORT} intent={Intent.SUCCESS} onClick={exportMod} />
         { exporting ? <ProgressBar animate={true} intent={Intent.WARNING} stripes={true} /> : null }
       </Card>
+      <Dialog title="Build Output Logs" icon={IconNames.WARNING_SIGN} onClose={handleHideLogs} isOpen={showingLogs} style={{width: 'unset', maxWidth: '90vw'}}>
+        <DialogBody>
+          <SyntaxHighlighter customStyle={{}} language="vim" style={ settings.theme == 'dark' ? dark : light }>{buildOutput}</SyntaxHighlighter>
+        </DialogBody>
+        <DialogFooter actions={
+          <ButtonGroup>
+            <Button intent={Intent.WARNING} icon={IconNames.CLIPBOARD} text="Copy" onClick={handleCopyLogs} />
+            <Button intent={Intent.PRIMARY} icon={IconNames.CROSS_CIRCLE} text="Close" onClick={handleHideLogs} />
+          </ButtonGroup>
+        } />
+      </Dialog>
     </div>
   );
 }

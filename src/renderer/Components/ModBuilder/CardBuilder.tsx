@@ -1,11 +1,11 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, Switch } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { IconNames } from "@blueprintjs/icons";
 import { useCallback, useState } from "react";
 import '../Flow.css'
 import buildCard, { CardColor, CardRarity, Stat, StatChange, CardProps, SimpleAmount } from './Templates/CardTemplate';
+import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useSettings } from '../../SettingsProvider';
 import { useModContext } from '../../ModContextProvider';
 import { useNavigate, useParams } from 'react-router-dom';

@@ -9,3 +9,12 @@
 .min-width-s {
   min-width: 400px;
 }
+
+.draggable {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}

@@ -46,6 +46,7 @@ function initCustomBehavior(window: BrowserWindow) {
     const { modName, csproj, exportFolder, scripts } = bundle;
   
     let result;
+    let buildOutput = '';
 
     try {
       // Create the export directory if it doesn't exist
@@ -74,11 +75,13 @@ function initCustomBehavior(window: BrowserWindow) {
         exec(buildCommand, { cwd: exportFolder }, (error, stdout, stderr) => {
           if (error) {
             console.error('Build error:', error);
+            buildOutput = stdout;
             return reject(error);
           }
           console.log('Build stdout:', stdout);
           console.error('Build stderr:', stderr);
-          resolve(stdout);
+          buildOutput = stdout;
+          resolve({ stdout });
         });
       });
 
@@ -89,13 +92,15 @@ function initCustomBehavior(window: BrowserWindow) {
 
       result = {
         status: 'success',
-        binary: binaryDest
+        binary: binaryDest,
+        output: buildOutput
       }
     } catch (error) {
       console.error('Error creating mod:', error);
       result = {
         status: 'error',
-        message: error
+        message: error,
+        output: buildOutput
       }
     }
 
