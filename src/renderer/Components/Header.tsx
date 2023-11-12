@@ -34,14 +34,13 @@ function Header() {
   return (
     <Navbar>
       <Navbar.Group align={Alignment.LEFT} style={{width: '100%', display: 'grid', gridTemplateColumns: '13em 1fr', gridTemplateRows: '1fr'}}>
-        <Navbar.Heading>ROUNDS Mod Builder</Navbar.Heading>
+        <Navbar.Heading>DeckSmith</Navbar.Heading>
         <ButtonGroup minimal={true}>
           {pages.map((page) => (
             <NavLink key={page.route} to={page.route}>
                 {({ isActive }) => <Button icon={page.icon} text={page.text} active={isActive} />}
             </NavLink>
           ))}
-          <SettingsButton />
           <ThemeToggle />
         </ButtonGroup>
       </Navbar.Group>
