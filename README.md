@@ -40,6 +40,7 @@ DeckSmith requires the .NET SDK to be installed and certain Unity assemblies and
 1. Start creating!
 
 Ultimately the contents of your `Libs` folder should look like this:
+
 <img src="https://raw.githubusercontent.com/willis81808/DeckSmith/main/assets/images/example-library-folder.png" />
 
 ## Starting Development
