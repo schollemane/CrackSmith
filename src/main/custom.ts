@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from "path";
-import { BrowserWindow, dialog, ipcMain } from "electron";
+import { BrowserWindow, dialog, shell, ipcMain } from "electron";
 import { ModBundle } from './preload';
 import { exec } from 'child_process';
 
@@ -31,6 +31,10 @@ function initCustomBehavior(window: BrowserWindow) {
     } else {
       return filePaths[0];
     }
+  });
+
+  ipcMain.handle('modApi:showFile', async (e, path: string) => {
+    shell.showItemInFolder(path);
   });
 
   ipcMain.handle('modApi:getAssemblies', async (e, libFolderPath: string) => {
@@ -75,9 +79,25 @@ function initCustomBehavior(window: BrowserWindow) {
           resolve(stdout);
         });
       });
+
+      const binaryPath = path.join(exportFolder, 'bin', 'Release', 'netstandard2.1', `${modName}.dll`);
+      const binaryDest = path.join(exportFolder, `${modName}.dll`);
+      await fs.rename(binaryPath, binaryDest);
+      await fs.rm(path.join(exportFolder, 'bin'), { recursive: true, force: true });
+      await fs.rm(path.join(exportFolder, 'obj'), { recursive: true, force: true });
+      await fs.rm(path.join(exportFolder, 'src'), { recursive: true, force: true });
+      await fs.rm(path.join(exportFolder, `${modName}.csproj`));
+
+      return {
+        status: 'success',
+        binary: binaryDest
+      }
     } catch (error) {
       console.error('Error creating mod:', error);
-      throw error; // Rethrow the error to send it back to the renderer process
+      return {
+        status: 'error',
+        message: error
+      }
     }
   });
 }

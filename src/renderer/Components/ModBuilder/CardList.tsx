@@ -71,12 +71,18 @@ function CardList() {
         content: buildMod(modContext.modName, modContext.modId, modContext.modVersion, modContext.cards.map(c => c.cardName.replaceAll(' ', ''))),
       }, ...cardScripts
     ];
-    await window.modApi.exportMod({
+    const result = await window.modApi.exportMod({
       csproj,
       exportFolder: modContext.exportFolder,
       modName: modContext.modName.replaceAll(' ', ''),
       scripts
     });
+
+    if (result.status == 'success') {
+      await window.modApi.showFile(result.binary);
+    } else {
+
+    }
     console.log({ csproj, scripts });
   }
 
