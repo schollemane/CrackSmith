@@ -3,17 +3,107 @@ type CardColor = 'DestructiveRed' | 'FirepowerYellow' | 'DefensiveBlue' | 'TechW
 type Stat = 'damage' | 'health' | 'reload' | 'ammo' | 'projectiles' | 'bursts' | 'timeBetweenBullets' | 'attackSpeed' | 'bounces' | 'bulletSpeed';
 type SimpleAmount = 'notAssigned' | 'aLittleBitOf' | 'Some' | 'aLotOf' | 'aHugeAmountOf' | 'slightlyLower' | 'lower' | 'aLotLower' | 'slightlySmaller' | 'smaller';
 
-const statDisplayTexts = {
-  'damage': 'Damage',
-  'health': 'Health',
-  'reload': 'Reload',
-  'ammo': 'Ammunition',
-  'projectiles': 'Projectiles',
-  'bursts': 'Bursts',
-  'timeBetweenBullets': 'Time Between Bullets',
-  'attackSpeed': 'Attack Speed',
-  'bounces': 'Bounces',
-  'bulletSpeed': 'Bullet Speed'
+interface StatInfo {
+  displayName: string
+  additive: boolean
+  integer: boolean
+  unit: string
+  min: number
+  max: number
+  requires: Stat[]
+}
+
+const statInfoConstraints: { [key: string]: StatInfo } = {
+  'damage': {
+    displayName: 'Damage',
+    additive: false,
+    integer: false,
+    unit: '%',
+    min: -100,
+    max: 100,
+    requires: []
+  },
+  'health': {
+    displayName: 'Health',
+    additive: false,
+    integer: false,
+    unit: '%',
+    min: -100,
+    max: 100,
+    requires: []
+  },
+  'reload': {
+    displayName: 'Reload Time',
+    additive: false,
+    integer: false,
+    unit: '%',
+    min: -100,
+    max: 100,
+    requires: []
+  },
+  'ammo': {
+    displayName: 'Ammunition',
+    additive: true,
+    integer: true,
+    unit: '',
+    min: -100,
+    max: 100,
+    requires: []
+  },
+  'projectiles': {
+    displayName: 'Projectiles',
+    additive: true,
+    integer: true,
+    unit: '',
+    min: 1,
+    max: 100,
+    requires: []
+  },
+  'bursts': {
+    displayName: 'Bursts',
+    additive: true,
+    integer: true,
+    unit: '',
+    min: 1,
+    max: 100,
+    requires: ['timeBetweenBullets']
+  },
+  'timeBetweenBullets': {
+    displayName: 'Time Between Bullets',
+    additive: true,
+    integer: false,
+    unit: ' seconds',
+    min: -100,
+    max: 100,
+    requires: ['bursts']
+  },
+  'attackSpeed': {
+    displayName: 'Attack Speed',
+    additive: false,
+    integer: false,
+    unit: '%',
+    min: -100,
+    max: 100,
+    requires: []
+  },
+  'bounces': {
+    displayName: 'Bounces',
+    additive: true,
+    integer: true,
+    unit: '',
+    min: 1,
+    max: 100,
+    requires: []
+  },
+  'bulletSpeed': {
+    displayName: 'Bullet Speed',
+    additive: false,
+    integer: false,
+    unit: '%',
+    min: -100,
+    max: 100,
+    requires: []
+  },
 }
 
 interface StatChange {
@@ -69,22 +159,40 @@ ${statChanges.map(statToInfo).join(',\n')}
             { "bounces",            (val) => { gun.reflects = (int)val; } },
             { "bulletSpeed",        (val) => { gun.projectileSpeed = val; } }
         };
-${ statChanges.map(sc => `        actions["${sc.stat}"].Invoke(${sc.value}f);`).join('\n') }
+${ statChanges.map(sc => statToInvocation(sc)).join('\n') }
     }
 }`.trim();
 }
 
+function statToInvocation(stat: StatChange) {
+  return `        actions["${stat.stat}"].Invoke(${stat.value}f);`;
+}
+
 function statToInfo(stat: StatChange) {
-  const amountPercent = Math.floor((stat.value - 1) * 100);
-  const amountString = `${amountPercent < 0 ? '' : '+'}${amountPercent}%`
+
+  const statInfo = getStatInfo(stat.stat);
+
+  var amountString: string;
+  if (statInfo.additive) {
+    amountString = `${stat.value < 0 ? stat.value : `+${stat.value}`}${statInfo.unit}`
+  } else {
+    const amountPercent = Math.floor((stat.value - 1) * 100);
+    amountString = `${amountPercent < 0 ? '' : '+'}${amountPercent}%`
+  }
+
   return `          new CardInfoStat()
           {
             positive = ${stat.positive},
-            stat = "${statDisplayTexts[stat.stat]}",
+            stat = "${statInfo.displayName}",
             amount = "${amountString}",
             simepleAmount = CardInfoStat.SimpleAmount.${stat.simpleAmount},
           }`;
 }
 
+function getStatInfo(stat: Stat) {
+  return statInfoConstraints[stat];
+}
+
 export default buildCard;
+export { getStatInfo }
 export type { CardRarity, CardColor, SimpleAmount, StatChange, Stat, CardProps };

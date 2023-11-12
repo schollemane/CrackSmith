@@ -24,7 +24,10 @@ DeckSmith requires the .NET SDK to be installed and certain Unity assemblies and
 
 1. Install the [.NET SDK](https://dotnet.microsoft.com/en-us/download)
 1. Create a `Libs` folder somewhere memorable, but out of the way.
-1. Copy all files from `${ROUNDS_INSTALL_DIR}/Rounds_Data/Managed` to your `Libs` folder.
+1. Copy the following files from `${ROUNDS_INSTALL_DIR}/Rounds_Data/Managed` to your `Libs` folder:
+    - `Assembly-CSharp.dll`
+    - `UnityEngine.dll`
+    - `UnityEngine.CoreModule.dll`
 1. Move the BepInEx assemblies to your `Libs` folder:
     - Open r2modman or Thunderstore Mod Manager, select one of your ROUNDS profiles
     - Open Settings > Locations and click "Browse profile folder"
@@ -35,6 +38,9 @@ DeckSmith requires the .NET SDK to be installed and certain Unity assemblies and
 1. Download [ModdingUtils](https://rounds.thunderstore.io/package/Pykess/ModdingUtils/) and copy `ModdingUtils.dll` to your `Libs` folder.
 1. Launch DeckSmith and configure your `Libs` folder path as the "Library Folder" under Mod Configuration
 1. Start creating!
+
+Ultimately the contents of your `Libs` folder should look like this:
+<img src="https://raw.githubusercontent.com/willis81808/DeckSmith/main/assets/images/example-library-folder.png" />
 
 ## Starting Development
 

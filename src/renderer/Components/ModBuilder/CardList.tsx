@@ -13,6 +13,7 @@ import buildCsproj from "./Templates/CsprojTemplate";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useSettings } from '../../SettingsProvider';
+import getRequiredAssmeblies, { RequiredAssembly } from "./RequiredAssemblies";
 
 function CardList() {
   const navigate = useNavigate();
@@ -22,10 +23,25 @@ function CardList() {
   const [ exporting, setExporting ] = useState(false);
   const [ buildOutput, setBuildOutput ] = useState('');
   const [ showingLogs, setShowingLogs ] = useState(false);
+  const [ missingAssemblies, setMissingAssemblies ] = useState([] as RequiredAssembly[]);
+  const [ showingMissingAssemblies, setShowingMissingAssemblies ] = useState(false);
   
   async function selectLibFolder() {
     const newModContext = {...modContext};
     newModContext.libFolder = await window.modApi.selectFolder('Select Library Folder');
+    
+    if (newModContext.libFolder != '') {
+      const libAssemblies = await window.modApi.getAssemblies(newModContext.libFolder);
+      const requiredAssmeblies = getRequiredAssmeblies();
+      const newMissingAssemblies = requiredAssmeblies.filter(r => !r.assemblies.every(a => libAssemblies.map(l => `${l.name}.dll`).includes(a)));
+      setMissingAssemblies(newMissingAssemblies);
+  
+      if (newMissingAssemblies.length > 0) {
+        newModContext.libFolder = '';
+        handleShowMissingAssemblies();
+      }
+    }
+
     updateModContext(newModContext);
   }
   
@@ -68,6 +84,14 @@ function CardList() {
     setShowingLogs(false);
   }
 
+  function handleShowMissingAssemblies() {
+    setShowingMissingAssemblies(true);
+  }
+
+  function handleHideMissingAssemblies() {
+    setShowingMissingAssemblies(false);
+  }
+
   function handleCopyLogs() {
     navigator.clipboard.writeText(buildOutput);
     const toast = OverlayToaster.create({ position: 'top', usePortal: true });
@@ -82,7 +106,7 @@ function CardList() {
   async function exportMod() {
     setExporting(true);
 
-    const files = await window.modApi.getAssemblies(modContext.libFolder) as string[];
+    const files = await window.modApi.getAssemblies(modContext.libFolder);
     const csproj = buildCsproj(files);
     const cardScripts = modContext.cards.map(c => {
       return {
@@ -157,10 +181,22 @@ function CardList() {
 
   function cardStatView(stats: StatChange, index: number) {
     return (
-      <li>
+      <li key={`${index}`}>
         <p>{stats.stat}: {stats.value}</p>
       </li>
     );
+  }
+
+  function missingAssemblyView(assemblyInfo: RequiredAssembly) {
+    return (
+      <Card className="bp5-running-text">
+        You are missing one or more of the following required assemblies:
+        <ul>
+          { assemblyInfo.assemblies.map(a => (<li><code>{a}</code></li>)) }
+        </ul>
+        {assemblyInfo.missingMessage}
+      </Card>
+    )
   }
 
   function cardView(card: CardProps, index: number) {
@@ -232,6 +268,12 @@ function CardList() {
             <Button intent={Intent.PRIMARY} icon={IconNames.CROSS_CIRCLE} text="Close" onClick={handleHideLogs} />
           </ButtonGroup>
         } />
+      </Dialog>
+      <Dialog title="Required assemblies are missing from Library Folder!" icon={IconNames.WARNING_SIGN} onClose={handleHideMissingAssemblies} isOpen={showingMissingAssemblies} style={{width: 'unset', maxWidth: '90vw'}}>
+        <DialogBody>
+          { missingAssemblies.map(missingAssemblyView) }
+        </DialogBody>
+        <DialogFooter actions={<Button intent={Intent.PRIMARY} icon={IconNames.CROSS_CIRCLE} text="Close" onClick={handleHideMissingAssemblies} />} />
       </Dialog>
     </div>
   );

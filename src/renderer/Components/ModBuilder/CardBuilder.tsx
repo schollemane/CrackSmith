@@ -1,10 +1,10 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, Switch } from "@blueprintjs/core";
+import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, Switch, Callout } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { IconNames } from "@blueprintjs/icons";
 import { useCallback, useState } from "react";
 import '../Flow.css'
-import buildCard, { CardColor, CardRarity, Stat, StatChange, CardProps, SimpleAmount } from './Templates/CardTemplate';
+import buildCard, { CardColor, CardRarity, Stat, StatChange, CardProps, SimpleAmount, getStatInfo } from './Templates/CardTemplate';
 import { atomOneDarkReasonable as dark, atomOneLight as light } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { useSettings } from '../../SettingsProvider';
 import { useModContext } from '../../ModContextProvider';
@@ -43,13 +43,32 @@ function CardBuilder() {
   const handleStatChange = (index: number, stat: Stat, value: number, positive: boolean, simpleAmount: SimpleAmount) => { 
     const newStats = [...stats];
     newStats[index] = { ...newStats[index], stat, value, positive, simpleAmount };
+
+    const statInfo = getStatInfo(stat);
+    for (let i = 0; i < statInfo.requires.length; i++) {
+      if (!newStats.map(s => s.stat).includes(statInfo.requires[i])) {
+        newStats.push({
+          stat: statInfo.requires[i],
+          value: 1,
+          positive: true,
+          simpleAmount: 'notAssigned'
+        });
+      }
+    }
+
     setStats(newStats);
   };
 
   const addStat = () => {
     const newStats = [...stats];
+
+    const statOptions: Stat[] = ['damage', 'health', 'reload', 'ammo', 'projectiles', 'bursts', 'timeBetweenBullets', 'attackSpeed', 'bounces', 'bulletSpeed'];
+    const availableStatOptions = statOptions.filter(o => !stats.map(s => s.stat).includes(o));
+
+    if (availableStatOptions.length == 0) return;
+
     newStats.push({
-      stat: 'damage',
+      stat: availableStatOptions[0],
       value: 1,
       positive: true,
       simpleAmount: 'notAssigned'
@@ -58,7 +77,17 @@ function CardBuilder() {
   }; 
 
   const removeStat = (index: number) => {
-    const newStats = stats.filter((_, i) => i !== index);
+    const indexesToRemove = [ index ]
+
+    const statChange = stats[index];
+    for (let i = 0; i < stats.length; i++) {
+      const otherStatInfo = getStatInfo(stats[i].stat);
+      if (otherStatInfo.requires.includes(statChange.stat) || statChange.stat === stats[i].stat) {
+        indexesToRemove.push(i);
+      }
+    }
+
+    const newStats = stats.filter((_, i) => !indexesToRemove.includes(i));
     setStats(newStats);
   };
 
@@ -79,6 +108,11 @@ function CardBuilder() {
     if (name == null || name == '') return false;
     if (description == null || description == '') return false;
     if (stats == null || stats.length == 0) return false;
+    
+    // assert that there are no duplicate stats
+    const distinctSet = new Set(stats.map(s => s.stat));
+    if (distinctSet.size !== stats.length) return false;
+
     return true;
   }
 
@@ -105,22 +139,29 @@ function CardBuilder() {
   }
 
   function statView(index: number, stat: StatChange) {
+    const statInfo = getStatInfo(stat.stat);
+    const isDuplicate = stats.filter(s => s.stat === stat.stat).length > 1;
+    const statOptions: Stat[] = ['damage', 'health', 'reload', 'ammo', 'projectiles', 'bursts', 'timeBetweenBullets', 'attackSpeed', 'bounces', 'bulletSpeed'];
+    const availableStatOptions = statOptions.filter(o => o === stat.stat || !stats.map(s => s.stat).includes(o))
     return (
-      <Card>
+      <Card style={{marginTop: '1em'}}>
+        { isDuplicate ? (<Callout icon={IconNames.WARNING_SIGN} intent={Intent.WARNING} title={`Cannot have duplicate '${stat.stat}' stats!`} />) : null }
         <FormGroup label="Stat">
           <HTMLSelect
             fill={true}
-            options={['damage', 'health', 'reload', 'ammo', 'projectiles', 'bursts', 'timeBetweenBullets', 'attackSpeed', 'bounces', 'bulletSpeed']}
+            options={availableStatOptions}
             value={stat.stat}
             onChange={(e) => handleStatChange(index, e.target.value as Stat, stat.value, stat.positive, stat.simpleAmount)} />
         </FormGroup>
-        <FormGroup label="Value">
+        <FormGroup label={`Value ${statInfo.additive ? '(Additive)' : '(Multiplier)'} ${statInfo.unit.trim()} `}>
           <NumericInput
             fill={true}
-            value={stat.value}
-            stepSize={0.1}
+            value={Math.min(statInfo.max, Math.max(statInfo.min, stat.value))}
+            stepSize={statInfo.integer ? 1 : 0.1}
+            min={statInfo.min}
+            max={statInfo.max}
             allowNumericCharactersOnly={true}
-            onValueChange={(_v: number, value: string) => handleStatChange(index, stat.stat, _v, stat.positive, stat.simpleAmount)} />
+            onValueChange={(_v: number, value: string) => handleStatChange(index, stat.stat, Math.min(statInfo.max, Math.max(statInfo.min, (statInfo.integer ? Math.floor(_v) : _v))), stat.positive, stat.simpleAmount)} />
         </FormGroup>
         <FormGroup label="Display">
           <div style={{display: 'flex', alignItems: 'center'}}>
@@ -139,7 +180,7 @@ function CardBuilder() {
 
   return (
     <div className="fill-view" style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '35em 2fr', gridTemplateRows: '1fr'}}>
-      <Card style={{overflow: 'auto'}}>
+      <Card style={{overflow: 'auto', paddingBottom: '10em'}}>
         <H1><EditableText placeholder="Card Name" onChange={handleSetName} value={name} /></H1>
         <FormGroup label="Description" labelFor="card-description">
           <TextArea id='card-description' fill placeholder='Card Description' onChange={(e) => handleSetDescription(e.target.value)} value={description} />

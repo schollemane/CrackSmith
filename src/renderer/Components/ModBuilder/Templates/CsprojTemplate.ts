@@ -1,4 +1,4 @@
-function buildCsproj(assemblies: any[]) {
+function buildCsproj(assemblies: {path: string; name: string; }[]) {
   return `
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -13,7 +13,7 @@ ${assemblies.map(ftr => getReferenceBlock(ftr)).join('\n')}
 </Project>`.trim();
 }
 
-function getReferenceBlock(assemblyPath) {
+function getReferenceBlock(assemblyPath: {path: string; name: string; }) {
   return `
     <Reference Include="${assemblyPath.name}">
       <HintPath>${assemblyPath.path}</HintPath>
