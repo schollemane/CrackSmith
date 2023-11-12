@@ -16,6 +16,8 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import initCustomBehavior from './custom';
 
+app.setName('DeckSmith');
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
