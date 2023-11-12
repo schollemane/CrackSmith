@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/icon.png" width="250px" style="user-select: none;" />
+  <img src="https://raw.githubusercontent.com/willis81808/DeckSmith/main/assets/icon.png" width="250px" style="user-select: none;" />
   <h1>DeckSmith</h1>
   Unleash your creativity and craft custom card mods with ease, bringing your unique strategies and styles to life in the world of ROUNDS without writing a single line of code.
 </div>
