@@ -1,4 +1,4 @@
-import { Alignment, Button, ButtonGroup, Navbar } from "@blueprintjs/core";
+import { Alignment, Button, ButtonGroup, Intent, Navbar } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { NavLink } from "react-router-dom";
 import "@blueprintjs/core/lib/css/blueprint.css";
@@ -6,6 +6,8 @@ import SettingsButton from "./SettingsButton";
 import ThemeToggle from "./ThemeToggle";
 import buildCard from "./ModBuilder/Templates/CardTemplate";
 import buildMod from "./ModBuilder/Templates/ModTemplate";
+import icon from '../../../assets/icon.png'
+import './Header.css'
 
 const pages = [
   // {
@@ -32,16 +34,19 @@ const pages = [
 
 function Header() {
   return (
-    <Navbar>
+    <Navbar className="draggable">
       <Navbar.Group align={Alignment.LEFT} style={{width: '100%', display: 'grid', gridTemplateColumns: '13em 1fr', gridTemplateRows: '1fr'}}>
-        <Navbar.Heading>DeckSmith</Navbar.Heading>
-        <ButtonGroup minimal={true}>
-          {pages.map((page) => (
-            <NavLink key={page.route} to={page.route}>
-                {({ isActive }) => <Button icon={page.icon} text={page.text} active={isActive} />}
-            </NavLink>
-          ))}
+        <Navbar.Heading style={{display: 'flex', alignItems: 'center'}}>
+          <img style={{marginRight: '1em'}} width={35} src={icon} />
+          DeckSmith
           <ThemeToggle />
+        </Navbar.Heading>
+        <ButtonGroup minimal={true}>
+          <div style={{ display: 'flex', marginLeft: 'auto'}}>
+            <Button className="no-drag" icon={IconNames.MINUS} minimal={true} intent={Intent.WARNING} onClick={window.modApi.minimize} />
+            <Button className="no-drag" icon={IconNames.PLUS} minimal={false} intent={Intent.PRIMARY} onClick={window.modApi.maximize} />
+            <Button className="no-drag" icon={IconNames.CROSS} minimal={false} intent={Intent.DANGER} onClick={window.modApi.exit} />
+          </div>
         </ButtonGroup>
       </Navbar.Group>
     </Navbar>

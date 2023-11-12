@@ -41,7 +41,10 @@ interface ModBundle {
 const modApi = {
   selectFolder: (dialogTitle: string) => ipcRenderer.invoke('modApi:selectFolder', dialogTitle),
   getAssemblies: (libFolderPath: string) => ipcRenderer.invoke('modApi:getAssemblies', libFolderPath),
-  exportMod: (bundle: ModBundle) => ipcRenderer.invoke('modApi:exportMod', bundle)
+  exportMod: (bundle: ModBundle) => ipcRenderer.invoke('modApi:exportMod', bundle),
+  minimize: () => ipcRenderer.invoke('application:minimize'),
+  maximize: () => ipcRenderer.invoke('application:maximize'),
+  exit: () => ipcRenderer.invoke('application:exit')
 }
 contextBridge.exposeInMainWorld('modApi', modApi);
 export type ModdingApi = typeof modApi;

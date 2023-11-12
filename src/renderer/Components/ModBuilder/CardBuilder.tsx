@@ -165,7 +165,7 @@ function CardBuilder() {
         { stats.map((s, i) => statView(i, s)) }
         <Button style={{marginTop: '1em'}} large={true} fill={true} intent={Intent.PRIMARY} onClick={addStat} text="Add Stat" />
       </Card>
-      <SyntaxHighlighter customStyle={{margin: 0, paddingTop: '1em', height: '100%'}} language="csharp" style={ settings.theme == 'dark' ? dark : light}>{getCardScript()}</SyntaxHighlighter>
+      <SyntaxHighlighter customStyle={{overflow: 'auto', margin: 0, paddingTop: '1em', height: '100%'}} language="csharp" style={ settings.theme == 'dark' ? dark : light}>{getCardScript()}</SyntaxHighlighter>
       <ButtonGroup style={{position: 'absolute', bottom: 25, right: 25 }}>
         <Button
           large={true}

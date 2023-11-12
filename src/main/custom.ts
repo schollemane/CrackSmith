@@ -5,8 +5,23 @@ import { ModBundle } from './preload';
 import { exec } from 'child_process';
 
 function initCustomBehavior(window: BrowserWindow) {
+  ipcMain.handle('application:minimize', async () => {
+    window.minimize();
+  });
+  
+  ipcMain.handle('application:maximize', async () => {
+    if (window.isMaximized()) {
+      window.unmaximize();
+    } else {
+      window.maximize();
+    }
+  });
+  
+  ipcMain.handle('application:exit', async () => {
+    window.close();
+  });
 
-  ipcMain.handle('modApi:selectFolder', async(e, dialogTitle: string) => {
+  ipcMain.handle('modApi:selectFolder', async (e, dialogTitle: string) => {
     const { canceled, filePaths } = await dialog.showOpenDialog(window, {
       title: dialogTitle,
       properties: ['openDirectory']
