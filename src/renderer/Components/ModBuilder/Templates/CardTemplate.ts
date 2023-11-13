@@ -140,13 +140,14 @@ interface StatChange {
 
 interface CardProps {
   cardName: string
+  cardArtUrl: string
   cardDescription: string
   cardRarity: CardRarity
   cardColor: CardColor
   cardStats: StatChange[]
 }
 
-function buildCard(modName: string, className: string, title: string, description: string, rarity: CardRarity, color: CardColor, statChanges: StatChange[]) {
+function buildCard(modName: string, cardProps: CardProps) {
   return `
 using System;
 using System.Collections;
@@ -155,18 +156,19 @@ using UnityEngine;
 using ModsPlus;
 using RarityLib.Utils;
 
-public class ${className} : SimpleCard
+public class ${cardProps.cardName.replaceAll(' ', '')} : SimpleCard
 {
     public override CardDetails Details => new CardDetails
     {
-        Title       = "${title}",
-        Description = "${description}",
+        Title       = "${cardProps.cardName}",
+        Description = "${cardProps.cardDescription}",
         ModName     = "${modName}",
-        Rarity      = RarityUtils.GetRarity("${rarity}"),
-        Theme       = CardThemeColor.CardThemeColorType.${color},
+        Rarity      = RarityUtils.GetRarity("${cardProps.cardRarity}"),
+        Theme       = CardThemeColor.CardThemeColorType.${cardProps.cardColor},
+        Art         = DeckSmithUtil.Instance.GetArtFromUrl("${cardProps.cardArtUrl}"),
         Stats = new CardInfoStat[]
         {
-${statChanges.map(statToInfo).join(',\n')}
+${cardProps.cardStats.map(statToInfo).join(',\n')}
         }
     };
 
@@ -185,7 +187,7 @@ ${statChanges.map(statToInfo).join(',\n')}
             { "bounces",            (val) => { gun.reflects = (int)val; } },
             { "bulletSpeed",        (val) => { gun.projectileSpeed = val; } }
         };
-${ statChanges.map(sc => statToInvocation(sc)).join('\n') }
+${ cardProps.cardStats.map(sc => statToInvocation(sc)).join('\n') }
     }
 }`.trim();
 }

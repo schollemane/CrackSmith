@@ -5,6 +5,7 @@ import { SettingsProvider } from './SettingsProvider';
 import CardBuilder from './Components/ModBuilder/CardBuilder';
 import { ModContextProvider } from './ModContextProvider';
 import CardList from './Components/ModBuilder/CardList';
+import PackageBuilder from './Components/PackageBuilder';
 
 export default function App() {
   let { index } = useParams();

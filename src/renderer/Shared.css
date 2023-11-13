@@ -29,26 +29,37 @@
 
 .colored-corners:after {
   content: "";
-  position:absolute;
+  position: absolute;
   left: -20px;
   top: -20px;
-  width:40px;
-  height:40px;
-  transform:rotate(45deg);
-  background-color:var(--corner-color); /* to see where it is */
+  width: 40px;
+  height: 40px;
+  transform: rotate(45deg);
+  background-color: var(--corner-color); /* to see where it is */
+  box-shadow: inset 0 0 0 5px var(--border-color)
 }
 
 .colored-corners:before {
   content: "";
-  position:absolute;
+  position: absolute;
   right: -20px;
   top: -20px;
-  width:40px;
-  height:40px;
-  transform:rotate(45deg);
-  background-color:var(--corner-color); /* to see where it is */
+  width: 40px;
+  height: 40px;
+  transform: rotate(45deg);
+  background-color: var(--corner-color); /* to see where it is */
+  box-shadow: inset 0 0 0 5px var(--border-color);
 }
 
 .margin-top-l {
   margin-top: 5em;
+}
+
+img {  
+  user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }

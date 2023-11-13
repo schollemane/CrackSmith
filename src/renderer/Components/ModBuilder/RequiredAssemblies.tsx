@@ -33,6 +33,11 @@ const unbound: RequiredAssembly = {
   missingMessage: (<>This can be found in "Unbound" by willis81808 on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/willis81808/UnboundLib/">Thunderstore</a>.</>)
 }
 
+const deckSmithUtil: RequiredAssembly = {
+  assemblies: [ 'DeckSmithUtil.dll' ],
+  missingMessage: (<>This can be found in "DeckSmithUtil" by willis81808 on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/willis81808/DeckSmithUtil/">Thunderstore</a>.</>)
+}
+
 const modsPlus: RequiredAssembly = {
   assemblies: [ 'ModsPlus.dll' ],
   missingMessage: (<>This can be found in "ModsPlus" by willis81808 on <a target="_blank" rel="noopener noreferrer" href="https://rounds.thunderstore.io/package/willis81808/ModsPlus/">Thunderstore</a>.</>)
@@ -49,7 +54,7 @@ const rarityLib: RequiredAssembly = {
 };
 
 function getRequiredAssmeblies() {
-  return [ rounds, bepInEx, unbound, modsPlus, moddingUtils, rarityLib ]
+  return [ rounds, bepInEx, unbound, deckSmithUtil, modsPlus, moddingUtils, rarityLib ]
 }
 
 export default getRequiredAssmeblies;

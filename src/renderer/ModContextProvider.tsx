@@ -5,15 +5,18 @@ interface ModContextProps {
   modName: string
   modId: string
   modVersion: string
-  cards: CardProps[],
-  libFolder: string,
+  modDescription: string
+  shortModDescription: string
+  modIcon: string
+  cards: CardProps[]
+  libFolder: string
   exportFolder: string
 }
 
 const modContextKey = 'mod-context';
 
 const ModContext = createContext<{ modContext: ModContextProps; updateModContext: (newPreferences: ModContextProps) => void }>(
-  { modContext: { modName: 'ExampleMod', modId: 'com.example.rounds.mod', modVersion: '0.0.1', cards: [], libFolder: '', exportFolder: '' }, updateModContext: () => {} }
+  { modContext: { modName: 'ExampleMod', modIcon: 'https://placehold.co/256/png', modDescription: 'This is a card mod made with DeckSmith', shortModDescription: '', modId: 'com.example.rounds.mod', modVersion: '0.0.1', cards: [], libFolder: '', exportFolder: '' }, updateModContext: () => {} }
 );
 
 function ModContextProvider({ children }) {

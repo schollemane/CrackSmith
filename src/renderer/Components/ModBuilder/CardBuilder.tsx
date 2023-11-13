@@ -1,5 +1,5 @@
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, Switch, Callout } from "@blueprintjs/core";
+import { Card, Button, EditableText, H1, H2, FormGroup, HTMLSelect, TextArea, NumericInput, Intent, OverlayToaster, ButtonGroup, Switch, Callout, InputGroup, Tooltip } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { IconNames } from "@blueprintjs/icons";
 import { useCallback, useState } from "react";
@@ -21,6 +21,7 @@ function CardBuilder() {
 
   const [name, setName] = useState(modContext.cards[cardIndex].cardName || '');
   const [description, setDescription] = useState(modContext.cards[cardIndex].cardDescription || '');
+  const [artUrl, setArtUrl] = useState(modContext.cards[cardIndex].cardArtUrl || 'https://placehold.co/512x402/png');
   const [rarity, setRarity] = useState(modContext.cards[cardIndex].cardRarity || 'Common' as CardRarity);
   const [color, setColor] = useState(modContext.cards[cardIndex].cardColor || 'TechWhite' as CardColor);
   const [stats, setStats] = useState(modContext.cards[cardIndex].cardStats || [] as StatChange[])
@@ -32,8 +33,14 @@ function CardBuilder() {
   };
 
   const handleSetDescription = (value: string) => {
-    setDescription(value);
+    if (/^[^\n]*$/.test(value)) {
+      setDescription(value);
+    }
   };
+
+  const handleSetArtUrl = (url: string) => {
+    setArtUrl(url);
+  }
 
   const handleSetRarity = (value: CardRarity) => {
     setRarity(value);
@@ -97,7 +104,7 @@ function CardBuilder() {
   const saveCard = () => {
     if (isValid()) {
       const newCards = [...modContext.cards];
-      newCards[cardIndex] = { ...newCards[cardIndex], cardName: name, cardDescription: description, cardRarity: rarity, cardColor: color, cardStats: stats };
+      newCards[cardIndex] = { ...newCards[cardIndex], cardArtUrl: artUrl, cardName: name, cardDescription: description, cardRarity: rarity, cardColor: color, cardStats: stats };
       const newModContext = { ...modContext };
       newModContext.cards = newCards;
       updateModContext(newModContext);
@@ -111,6 +118,7 @@ function CardBuilder() {
     if (name == null || name == '') return false;
     if (description == null || description == '') return false;
     if (stats == null || stats.length == 0) return false;
+    if (artUrl == null || artUrl == '') return false;
     
     // assert that there are no duplicate stats
     const distinctSet = new Set(stats.map(s => s.stat));
@@ -127,7 +135,14 @@ function CardBuilder() {
   }
 
   function getCardScript() {
-    return buildCard(modContext.modName, name.replaceAll(' ', ''), name, description, rarity, color, stats);
+    return buildCard(modContext.modName, {
+      cardName: name,
+      cardDescription: description,
+      cardArtUrl: artUrl,
+      cardRarity: rarity,
+      cardColor: color,
+      cardStats: stats
+    });
   }
 
   function copyCardScript() {
@@ -185,8 +200,13 @@ function CardBuilder() {
     <div className="fill-view" style={{margin: '0', padding: '0', display: "grid", gridTemplateColumns: '35em 2fr', gridTemplateRows: '1fr'}}>
       <Card style={{overflow: 'auto', paddingBottom: '10em'}}>
         <H1><EditableText placeholder="Card Name" onChange={handleSetName} value={name} /></H1>
+        <FormGroup label="Art Image URL" labelFor='card-art'>
+          <Tooltip fill content="To avoid unfavorable resizing in-game use images of dimension 512 x 402 pixels or of similar aspect ratio.">
+            <InputGroup id='card-art' leftIcon={IconNames.DOWNLOAD} value={artUrl} placeholder='https://placehold.co/512x512/png' onChange={(e) => handleSetArtUrl(e.target.value)} />
+          </Tooltip>
+        </FormGroup>
         <FormGroup label="Description" labelFor="card-description">
-          <TextArea id='card-description' fill placeholder='Card Description' onChange={(e) => handleSetDescription(e.target.value)} value={description} />
+          <TextArea aria-multiline={false} id='card-description' fill placeholder='Card Description' onChange={(e) => handleSetDescription(e.target.value)} value={description} />
         </FormGroup>
         
         <FormGroup label="Rarity" labelFor="card-rarity">

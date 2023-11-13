@@ -1,7 +1,10 @@
-import fs from 'fs/promises';
+import https from 'https';
+import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
+import archiver from 'archiver';
 import path from "path";
 import { BrowserWindow, dialog, shell, ipcMain } from "electron";
-import { ModBundle } from './preload';
+import { ModBundle, PackageData } from './preload';
 import { exec } from 'child_process';
 
 function initCustomBehavior(window: BrowserWindow) {
@@ -48,7 +51,7 @@ function initCustomBehavior(window: BrowserWindow) {
   ipcMain.handle('modApi:exportMod', async (e, bundle: ModBundle) => {  
     // Destructure the data from the bundle
     const { modName, csproj, exportFolder, scripts } = bundle;
-  
+    
     let result;
     let buildOutput = '';
 
@@ -116,6 +119,68 @@ function initCustomBehavior(window: BrowserWindow) {
 
     return result;
   });
+
+  ipcMain.handle('modApi:exportPackage', async (e, packageData: PackageData) => {
+    const { manifest, dllPath, iconUrl, readme, destination } = packageData;
+
+    const modName = path.parse(dllPath).name;
+
+    const contentFolder = path.join(destination, `${modName}-Package-Contents`);
+    await fs.mkdir(contentFolder, { recursive: true });
+
+    await fs.copyFile(dllPath, path.join(contentFolder, path.basename(dllPath)));
+    await fs.writeFile(path.join(contentFolder, 'manifest.json'), manifest);
+    await fs.writeFile(path.join(contentFolder, 'README.md'), readme);
+
+    await downloadFile(iconUrl, contentFolder, 'icon.png');
+
+    const zipPath = path.join(destination, `${modName}-Thunderstore-Package.zip`);
+    await zipDirectory(contentFolder, zipPath);
+
+    return zipPath;
+  })
+}
+
+async function zipDirectory(sourceDir, outPath) {
+  const archive = archiver('zip', { zlib: { level: 9 }});
+  const stream = fsSync.createWriteStream(outPath);
+
+  const result = await new Promise<{success: boolean}>((resolve, reject) => {
+    archive
+      .directory(sourceDir, false)
+      .on('error', err => resolve({success: false}))
+      .pipe(stream)
+    ;
+
+    stream.on('close', () => resolve({success: true}));
+    archive.finalize();
+  });
+
+  if (result.success) {
+    stream.close();
+  } else {
+    await fs.unlink(outPath);
+  }
+}
+
+async function downloadFile(url: string, folder: string, filename: string) {
+  const destination = path.join(folder, filename)
+  const iconFile = fsSync.createWriteStream(destination);
+  const result = await new Promise<{success: boolean}>((resolve, reject) => {
+    const request = https.get(url, response => {
+      response.pipe(iconFile);
+      iconFile.on('finish', () => {
+        resolve({ success: true });
+      })
+    }).on('error', err => {
+      resolve({ success: false });
+    });
+  });
+  if (result.success) {
+    iconFile.close();
+  } else {
+    await fs.unlink(destination);
+  }
 }
 
 async function getAssemblies(libFolder: string) {
